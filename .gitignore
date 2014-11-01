@@ -1,0 +1,15 @@
+.DS_Store
+.nodemonignore
+.sass-cache/
+npm-debug.log
+node_modules/
+app/tests/coverage/
+.bower-*/
+.idea/
+config.json
+
+*~
+.*~
+.*.~
+*.swp
+.*.swp
