@@ -5,7 +5,7 @@ nconf.file({ file: __dirname + '/config.json' });
 var config = nconf.get('development');
 
 module.exports = {
-	db: 'mongodb://localhost/mean-dev',
+	db: 'mongodb://localhost/botaNYC',
 	app: {
 		title: 'MEAN - Development Environment'
 	},
