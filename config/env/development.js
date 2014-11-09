@@ -7,7 +7,7 @@ var config = nconf.get('development');
 module.exports = {
 	db: 'mongodb://localhost/botaNYC',
 	app: {
-		title: 'MEAN - Development Environment'
+		title: 'botaNYC development'
 	},
 	facebook: {
 		clientID: process.env.FACEBOOK_ID || 'APP_ID',

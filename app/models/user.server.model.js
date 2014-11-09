@@ -25,6 +25,24 @@ var validateLocalStrategyPassword = function(password) {
  * User Schema
  */
 var UserSchema = new Schema({
+	scraper: {
+		status: {
+			type: Boolean
+		},
+		last_run: {
+			type: Date
+		},
+		next_run: {
+			type: Date
+		},
+		total_runs: {
+			type: Number
+		},
+		created: {
+			type: Date,
+			default: Date.now
+		}
+	},
 	firstName: {
 		type: String,
 		trim: true,
