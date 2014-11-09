@@ -1,11 +1,11 @@
 'use strict';
 
 var nconf = require('nconf');
-nconf.file({ file: __dirname + '/config.json' });
+nconf.file({ file: __dirname + '/../../config.json' });
 var config = nconf.get('development');
 
 module.exports = {
-	db: 'mongodb://localhost/botaNYC',
+	db: config.mongoURI,
 	app: {
 		title: 'botaNYC development'
 	},

@@ -1,4 +1,4 @@
-<section data-ng-controller="HomeController" data-ng-init="init()">
+<section data-ng-controller="HomeController">
 	<div class="row">
 		<div class="col-md-4 col-md-offset-4">
 
@@ -12,7 +12,17 @@
 
 			<!-- Once user has auther w/ Twitter and entered password, display Scraper status and controls-->
 			<div ng-show="authSuccess">
-				Scraper
+				<section data-ng-controller="JobsController" data-ng-init="find()">
+					<h3>Jobs:</h3>
+					<hr>
+					<div ng-repeat="job in jobs">
+						<p>Date: {{ job.date }}</p>
+						<p>Agency: {{ job.agency }}</p>
+						<p>Location: {{ job.location }}</p>
+						<a href="{{job.link}}"><p>Title: {{ job.title }}</p></a>
+						<hr>
+					</div>
+				</section>
 			</div>
 
 		</div>

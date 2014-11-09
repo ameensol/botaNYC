@@ -37,6 +37,10 @@ var JobSchema = new Schema({
 	tweeted: {
 		type:Boolean,
 		default:false
+	},
+	created: {
+		type: Date,
+		default:Date.now
 	}
 });
 
