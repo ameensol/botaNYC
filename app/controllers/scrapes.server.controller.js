@@ -163,8 +163,9 @@ exports.activate = function (req, res, next) {
 
 							T.post('statuses/update', { status: status },
 							function(err, data, response) {
-								if (err) return done(err)
-								throw 'stop'
+								if (err && err.code !== 187) { // ignore duplicate status
+									return done(err)
+								}
 								doc.tweeted = true
 								doc.save()
 								return done(null)
@@ -175,7 +176,7 @@ exports.activate = function (req, res, next) {
 					})
 
 				}, function(err) {
-					if (err) throw err // TODO
+					if (err) return console.log(err) // TODO
 					var session = new Scrape({ jobs: newJobs })
 					session.save()
 
