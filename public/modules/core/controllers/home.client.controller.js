@@ -8,10 +8,8 @@ angular.module('core').controller('HomeController', ['$scope', 'Authentication',
 		$scope.info = ''
 
 		var validUsers = [
-			'ameensol',
 			'civicjobsnyc',
-			'noneck',
-			'chris_whong'
+			'tkdtothemax1'
 		];
 
 		var initScraper = function() {

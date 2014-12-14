@@ -11,7 +11,7 @@ var mongoose = require('mongoose'),
 	forever = require('forever'),
 	async = require('async'),
 	Scraper = require('../../scripts/scrape'),
-	T = require('twit');
+	Twit = require('twit');
 
 
 var nconf = require('nconf')
@@ -131,8 +131,7 @@ exports.activate = function (req, res, next) {
 			var scraper = new Scraper()
 
 			scraper.start(function(err, jobs) {
-				if (err) throw err
-				console.log(jobs)
+				if (err) return console.log(err)
 				// for each job listing, check if a job listing with that id exists in
 				// the database. If it does, do nothing. If it doesn't, save it to the
 				// database and send out a tweet.
@@ -141,16 +140,38 @@ exports.activate = function (req, res, next) {
 				async.each(jobs, function(job, done) {
 					Job.findOne({ id: job.id}).exec(function(err, doc) {
 						if (err) return done(err)
-						console.log(doc)
 						if (!doc) { // job doesn't exist in database
-							var jobDoc = new Job(job)
-							jobDoc.save()
-							newJobs.push(jobDoc)
-
-							// TODO Tweet out taht a job has been saved
-							// TODO set "tweeted" field to true
+							doc = new Job(job)
+							doc.save()
+							newJobs.push(doc)
 						}
-						return done(null)
+
+						console.log(doc)
+
+						if (!doc.tweeted) {
+							var T = new Twit({
+									consumer_key:        config.twitter.key
+								, consumer_secret:     config.twitter.secret
+								, access_token:        req.user.providerData.token
+								, access_token_secret: req.user.providerData.tokenSecret
+							})
+
+							var status = ''
+							status += doc.agency.toLowerCase() + ' seeking ' + doc.title.toLowerCase() + '\n\n'
+							status += doc.location.toLowerCase() + '\n'
+							status += doc.link
+
+							T.post('statuses/update', { status: status },
+							function(err, data, response) {
+								if (err) return done(err)
+								throw 'stop'
+								doc.tweeted = true
+								doc.save()
+								return done(null)
+							})
+						} else {
+							return done(null)
+						}
 					})
 
 				}, function(err) {
