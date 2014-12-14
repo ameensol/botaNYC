@@ -7,6 +7,18 @@ angular.module('scrapes').factory('Scrapes', ['$resource',
 		}, {
 			update: {
 				method: 'PUT'
+			},
+			activate: {
+				method: 'POST',
+				url: 'scraper'
+			},
+			check: {
+				method: 'GET',
+				url: 'scraper'
+			},
+			deactivate: {
+				method: 'DELETE',
+				url: 'scraper'
 			}
 		});
 	}

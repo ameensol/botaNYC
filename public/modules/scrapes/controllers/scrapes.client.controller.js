@@ -5,6 +5,17 @@ angular.module('scrapes').controller('ScrapesController', ['$scope', '$statePara
 	function($scope, $stateParams, $location, Authentication, Scrapes ) {
 		$scope.authentication = Authentication;
 
+		$scope.checkStatus = function () {
+			Scrapes.check(function (res) {
+				console.log(res[0])
+				if (res[0] && res[0] > 0) {
+					$scope.status = 'Active'
+				} else {
+					$scope.status = 'Inactive'
+				}
+			})
+		}
+
 		// Create new Scrape
 		$scope.create = function() {
 			// Create new Scrape object
@@ -57,7 +68,7 @@ angular.module('scrapes').controller('ScrapesController', ['$scope', '$statePara
 
 		// Find existing Scrape
 		$scope.findOne = function() {
-			$scope.scrape = Scrapes.get({ 
+			$scope.scrape = Scrapes.get({
 				scrapeId: $stateParams.scrapeId
 			});
 		};

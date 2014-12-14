@@ -6,7 +6,17 @@
 var mongoose = require('mongoose'),
 	errorHandler = require('./errors'),
 	Scrape = mongoose.model('Scrape'),
-	_ = require('lodash');
+	Job = mongoose.model('Job'),
+	_ = require('lodash'),
+	forever = require('forever'),
+	async = require('async'),
+	Scraper = require('../../scripts/scrape');
+
+
+var nconf = require('nconf')
+nconf.file({ file: __dirname + '/../../config.json' });
+var file = nconf.get();
+var config = file[file.NODE_ENV];
 
 /**
  * Create a Scrape
@@ -103,3 +113,76 @@ exports.hasAuthorization = function(req, res, next) {
 	}
 	next();
 };
+
+/**
+ * Activate Scraper
+ * If there is already a scheduled task, cancel it, scrape now, and schedule
+ * another
+ */
+exports.activate = function (req, res) {
+	if (exports.scheduledScrape) {
+		clearTimeout(exports.scheduledScrape)
+	}
+
+	var scrapeAfterWait = function (wait) {
+		console.log('scraping after: ' + wait)
+		exports.scheduledScrape = setTimeout(function () {
+			var scraper = new Scraper()
+
+			scraper.start(function(err, jobs) {
+				if (err) throw err
+				console.log(jobs)
+				// for each job listing, check if a job listing with that id exists in
+				// the database. If it does, do nothing. If it doesn't, save it to the
+				// database and send out a tweet.
+
+				var newJobs = [];
+				async.each(jobs, function(job, done) {
+					Job.findOne({ id: job.id}).exec(function(err, doc) {
+						if (err) return done(err)
+						console.log(doc)
+						if (!doc) { // job doesn't exist in database
+							var jobDoc = new Job(job)
+							jobDoc.save()
+							newJobs.push(jobDoc)
+
+							// TODO Tweet out taht a job has been saved
+							// TODO set "tweeted" field to true
+						}
+						return done(null)
+					})
+
+				}, function(err) {
+					if (err) throw err // TODO
+					var session = new Scrape({ jobs: newJobs })
+					session.save()
+
+					scrapeAfterWait(config.wait) // wait for the amount of time set in the config
+				})
+			})
+		}, wait)
+	}
+
+	scrapeAfterWait(0)
+	return jsonp(1)
+}
+
+/**
+ * Deactivate Scraper
+ */
+exports.deactivate = function (req, res) {
+	clearTimeout(exports.scheduledScrape)
+	delete exports.scheduledScrape
+	return res.jsonp(1)
+}
+
+/**
+ * Check Scraper Status
+ */
+exports.checkStatus = function (req, res) {
+	if (exports.scheduledScrape) {
+		return res.jsonp(1)
+	} else {
+		return res.jsonp(0)
+	}
+}

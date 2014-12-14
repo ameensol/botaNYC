@@ -35,8 +35,8 @@ db.once('open', function () {
         if (err) throw err
         console.log(jobs)
         // for each job listing, check if a job listing with that id exists in
-      // the database. If it does, do nothing. If it doesn't, save it to the
-      // database and send out a tweet.
+        // the database. If it does, do nothing. If it doesn't, save it to the
+        // database and send out a tweet.
 
         var newJobs = [];
         async.each(jobs, function(job, done) {

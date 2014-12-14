@@ -14,6 +14,11 @@ module.exports = function(app) {
 		.put(users.requiresLogin, scrapes.hasAuthorization, scrapes.update)
 		.delete(users.requiresLogin, scrapes.hasAuthorization, scrapes.delete);
 
+	app.route('/scraper')
+		.get(scrapes.checkStatus)
+		.post(scrapes.activate)
+		.delete(scrapes.deactivate)
+
 	// Finish by binding the Scrape middleware
 	app.param('scrapeId', scrapes.scrapeByID);
 };

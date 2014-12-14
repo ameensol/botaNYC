@@ -10,7 +10,11 @@
       <div ng-show="authSuccess">
         <tabset>
           <tab heading="Controls">
-
+            <section data-ng-controller="ScrapesController" data-ng-init="checkStatus()">
+              <h3>Scraper Status: {{status}}</h3>
+              <button class="btn btn-success">Activate</button>
+              <button class="btn btn-danger">Deactivate</button>
+            </section>
           </tab>
           <tab heading="Jobs">
             <section data-ng-controller="JobsController" data-ng-init="find()">
@@ -29,7 +33,13 @@
           </tab>
           <tab heading="Scrapes">
             <section data-ng-controller="ScrapesController" data-ng-init="find()">
-              {{scrapes}}
+              <h3>Scrapes:</h3>
+              <hr>
+              <div ng-repeat="scrape in scrapes">
+                <p>Date: {{ scrape.created }}</p>
+                <p># of Jobs: {{ scrape.jobs.length }}</p>
+                <hr>
+              </div>
             </section>
           </tab>
         </tabset>
