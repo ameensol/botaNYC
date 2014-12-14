@@ -5,15 +5,32 @@ angular.module('scrapes').controller('ScrapesController', ['$scope', '$statePara
 	function($scope, $stateParams, $location, Authentication, Scrapes ) {
 		$scope.authentication = Authentication;
 
+		// Activate the scraper
+		$scope.activate = function () {
+			Scrapes.activate(function (res) {
+				$scope.setStatus(res[0])
+			})
+		}
+
+		// DEactivate the scraper
+		$scope.deactivate = function () {
+			Scrapes.deactivate(function (res) {
+				$scope.setStatus(res[0])
+			})
+		}
+
 		$scope.checkStatus = function () {
 			Scrapes.check(function (res) {
-				console.log(res[0])
-				if (res[0] && res[0] > 0) {
-					$scope.status = 'Active'
-				} else {
-					$scope.status = 'Inactive'
-				}
+				$scope.setStatus(res[0])
 			})
+		}
+
+		$scope.setStatus = function (status) {
+			if (status && status > 0) {
+				$scope.status = 'Active'
+			} else {
+				$scope.status = 'Inactive'
+			}
 		}
 
 		// Create new Scrape

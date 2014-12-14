@@ -16,8 +16,8 @@ module.exports = function(app) {
 
 	app.route('/scraper')
 		.get(scrapes.checkStatus)
-		.post(scrapes.activate)
-		.delete(scrapes.deactivate)
+		.post(scrapes.activate, scrapes.checkStatus)
+		.delete(scrapes.deactivate, scrapes.checkStatus)
 
 	// Finish by binding the Scrape middleware
 	app.param('scrapeId', scrapes.scrapeByID);

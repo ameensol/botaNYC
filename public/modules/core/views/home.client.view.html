@@ -12,8 +12,8 @@
           <tab heading="Controls">
             <section data-ng-controller="ScrapesController" data-ng-init="checkStatus()">
               <h3>Scraper Status: {{status}}</h3>
-              <button class="btn btn-success">Activate</button>
-              <button class="btn btn-danger">Deactivate</button>
+              <button class="btn btn-success" ng-click="activate()">Activate</button>
+              <button class="btn btn-danger" ng-click="deactivate()">Deactivate</button>
             </section>
           </tab>
           <tab heading="Jobs">
@@ -36,7 +36,7 @@
               <h3>Scrapes:</h3>
               <hr>
               <div ng-repeat="scrape in scrapes">
-                <p>Date: {{ scrape.created }}</p>
+                <p>Date: {{ scrape.created | date:'short'}}</p>
                 <p># of Jobs: {{ scrape.jobs.length }}</p>
                 <hr>
               </div>

@@ -10,7 +10,8 @@ var mongoose = require('mongoose'),
 	_ = require('lodash'),
 	forever = require('forever'),
 	async = require('async'),
-	Scraper = require('../../scripts/scrape');
+	Scraper = require('../../scripts/scrape'),
+	T = require('twit');
 
 
 var nconf = require('nconf')
@@ -119,7 +120,7 @@ exports.hasAuthorization = function(req, res, next) {
  * If there is already a scheduled task, cancel it, scrape now, and schedule
  * another
  */
-exports.activate = function (req, res) {
+exports.activate = function (req, res, next) {
 	if (exports.scheduledScrape) {
 		clearTimeout(exports.scheduledScrape)
 	}
@@ -164,16 +165,16 @@ exports.activate = function (req, res) {
 	}
 
 	scrapeAfterWait(0)
-	return jsonp(1)
+	return next(null)
 }
 
 /**
  * Deactivate Scraper
  */
-exports.deactivate = function (req, res) {
+exports.deactivate = function (req, res, next) {
 	clearTimeout(exports.scheduledScrape)
 	delete exports.scheduledScrape
-	return res.jsonp(1)
+	return next(null)
 }
 
 /**
