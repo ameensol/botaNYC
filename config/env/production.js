@@ -1,11 +1,7 @@
 'use strict';
 
-var nconf = require('nconf')
-nconf.file({ file: __dirname + '/../../config.json' });
-var config = nconf.get('production');
-
 module.exports = {
-	db: config.mongoURI,
+	db: process.env.database,
 	assets: {
 		lib: {
 			css: [
@@ -33,9 +29,9 @@ module.exports = {
 		callbackURL: 'http://localhost:3000/auth/facebook/callback'
 	},
 	twitter: {
-		clientID: process.env.TWITTER_KEY || 'CONSUMER_KEY',
-		clientSecret: process.env.TWITTER_SECRET || 'CONSUMER_SECRET',
-		callbackURL: 'http://localhost:3000/auth/twitter/callback'
+		clientID: process.env.twitterKey || 'CONSUMER_KEY',
+		clientSecret: process.env.twitterSecret || 'CONSUMER_SECRET',
+		callbackURL: 'http://127.0.0.1:3000/auth/twitter/callback'
 	},
 	google: {
 		clientID: process.env.GOOGLE_ID || 'APP_ID',

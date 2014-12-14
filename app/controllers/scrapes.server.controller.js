@@ -14,11 +14,6 @@ var mongoose = require('mongoose'),
 	Twit = require('twit');
 
 
-var nconf = require('nconf')
-nconf.file({ file: __dirname + '/../../config.json' });
-var file = nconf.get();
-var config = file[file.NODE_ENV];
-
 /**
  * Create a Scrape
  */
@@ -121,67 +116,83 @@ exports.hasAuthorization = function(req, res, next) {
  * another
  */
 exports.activate = function (req, res, next) {
-	if (exports.scheduledScrape) {
-		clearTimeout(exports.scheduledScrape)
+	if (exports.scheduledScrape && exports.scheduledScrape.id) {
+		clearTimeout(exports.scheduledScrape.id)
 	}
 
 	var scrapeAfterWait = function (wait) {
 		console.log('scraping after: ' + wait)
-		exports.scheduledScrape = setTimeout(function () {
-			var scraper = new Scraper()
+		exports.scheduledScrape = exports.scheduledScrape || {}
+		exports.scheduledScrape.time = new Date().getTime() + wait
+		console.log(exports.scheduledScrape.time)
+		exports.scheduledScrape.id = setTimeout(function () {
 
-			scraper.start(function(err, jobs) {
-				if (err) return console.log(err)
-				// for each job listing, check if a job listing with that id exists in
-				// the database. If it does, do nothing. If it doesn't, save it to the
-				// database and send out a tweet.
+			async.waterfall([
+				function initScraper(cb) {
+					var scraper = new Scraper()
+					scraper.start(function(err, jobs) {
+						if (err) return cb(err)
+						return cb(null, jobs)
+					})
+				},
+				function findOrCreateJobs(jobs, cb) {
+					var newJobs = [];
+					async.map(jobs, function(job, done) {
+						Job.findOne({ id: job.id}).exec(function(err, doc) {
+							if (err) return done(err)
+							if (!doc) { // job doesn't exist in database
+								doc = new Job(job)
+								doc.save()
+								newJobs.push(doc)
+							}
+							return done(null, doc)
+						})
+					},
+					function (err, docs) {
+						if (err) return cb(err)
+						return cb(null, docs, newJobs)
+					})
+				},
+				function saveSession(jobs, newJobs, cb) {
+					var session = new Scrape({ jobs: newJobs })
+					session.save()
+					return cb(null, jobs)
+				},
+				function tweetJobs (jobs, cb) {
+					var T = new Twit({
+							consumer_key:        process.env.twitterKey
+						, consumer_secret:     process.env.twitterSecret
+						, access_token:        req.user.providerData.token
+						, access_token_secret: req.user.providerData.tokenSecret
+					})
 
-				var newJobs = [];
-				async.each(jobs, function(job, done) {
-					Job.findOne({ id: job.id}).exec(function(err, doc) {
-						if (err) return done(err)
-						if (!doc) { // job doesn't exist in database
-							doc = new Job(job)
-							doc.save()
-							newJobs.push(doc)
-						}
-
-						console.log(doc)
-
-						if (!doc.tweeted) {
-							var T = new Twit({
-									consumer_key:        config.twitter.key
-								, consumer_secret:     config.twitter.secret
-								, access_token:        req.user.providerData.token
-								, access_token_secret: req.user.providerData.tokenSecret
-							})
-
+					async.each(jobs, function (job, done) {
+						if (!job.tweeted) {
 							var status = ''
-							status += doc.agency.toLowerCase() + ' seeking ' + doc.title.toLowerCase() + '\n\n'
-							status += doc.location.toLowerCase() + '\n'
-							status += doc.link
+							status += job.agency.toLowerCase() + ' seeking ' + job.title.toLowerCase() + '\n\n'
+							status += job.location.toLowerCase() + '\n'
+							status += job.link
 
 							T.post('statuses/update', { status: status },
 							function(err, data, response) {
 								if (err && err.code !== 187) { // ignore duplicate status
 									return done(err)
 								}
-								doc.tweeted = true
-								doc.save()
+								job.tweeted = true
+								job.save()
 								return done(null)
 							})
 						} else {
 							return done(null)
 						}
+					}, function (err) {
+						if (err) return cb(err)
+						return cb(null)
 					})
-
-				}, function(err) {
-					if (err) return console.log(err) // TODO
-					var session = new Scrape({ jobs: newJobs })
-					session.save()
-
-					scrapeAfterWait(config.wait) // wait for the amount of time set in the config
-				})
+				}
+			], function (err) {
+				if (err) console.log(err) // fail silently, try again in 1 hour
+				return scrapeAfterWait(4*60*60*1000) // wait 4 hours between scrapes
 			})
 		}, wait)
 	}
@@ -194,7 +205,7 @@ exports.activate = function (req, res, next) {
  * Deactivate Scraper
  */
 exports.deactivate = function (req, res, next) {
-	clearTimeout(exports.scheduledScrape)
+	clearTimeout(exports.scheduledScrape.id)
 	delete exports.scheduledScrape
 	return next(null)
 }
@@ -204,8 +215,9 @@ exports.deactivate = function (req, res, next) {
  */
 exports.checkStatus = function (req, res) {
 	if (exports.scheduledScrape) {
-		return res.jsonp(1)
+		console.log(exports.scheduledScrape)
+		return res.jsonp({status: 1, time: exports.scheduledScrape.time})
 	} else {
-		return res.jsonp(0)
+		return res.jsonp({status: 0})
 	}
 }

@@ -8,28 +8,35 @@ angular.module('scrapes').controller('ScrapesController', ['$scope', '$statePara
 		// Activate the scraper
 		$scope.activate = function () {
 			Scrapes.activate(function (res) {
-				$scope.setStatus(res[0])
+				$scope.setStatus(res)
 			})
 		}
 
 		// DEactivate the scraper
 		$scope.deactivate = function () {
 			Scrapes.deactivate(function (res) {
-				$scope.setStatus(res[0])
+				$scope.setStatus(res)
 			})
 		}
 
 		$scope.checkStatus = function () {
 			Scrapes.check(function (res) {
-				$scope.setStatus(res[0])
+				console.log(res)
+				$scope.setStatus(res)
 			})
 		}
 
-		$scope.setStatus = function (status) {
-			if (status && status > 0) {
+		$scope.setStatus = function (scraper) {
+			console.log(scraper)
+			if (scraper.status && scraper.time > 0) {
 				$scope.status = 'Active'
+				var now = new Date().getTime()
+				console.log(now)
+				console.log(scraper.time)
+				$scope.pending = scraper.time
 			} else {
 				$scope.status = 'Inactive'
+				$scope.pending = null
 			}
 		}
 

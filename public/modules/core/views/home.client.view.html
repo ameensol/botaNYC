@@ -13,6 +13,7 @@
           <tab heading="Controls">
             <section data-ng-controller="ScrapesController" data-ng-init="checkStatus()">
               <h3>Scraper Status: {{status}}</h3>
+              <p ng-show="pending">Scheduled scrape at: {{pending | date:'shortTime'}}</p>
               <button class="btn btn-success" ng-click="activate()">Activate</button>
               <button class="btn btn-danger" ng-click="deactivate()">Deactivate</button>
             </section>

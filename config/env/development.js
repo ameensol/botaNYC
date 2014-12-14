@@ -1,11 +1,7 @@
 'use strict';
 
-var nconf = require('nconf');
-nconf.file({ file: __dirname + '/../../config.json' });
-var config = nconf.get('development');
-
 module.exports = {
-	db: config.mongoURI,
+	db: process.env.database,
 	app: {
 		title: 'botaNYC development'
 	},
@@ -15,8 +11,8 @@ module.exports = {
 		callbackURL: 'http://localhost:3000/auth/facebook/callback'
 	},
 	twitter: {
-		clientID: config.twitter.key || 'CONSUMER_KEY',
-		clientSecret: config.twitter.secret || 'CONSUMER_SECRET',
+		clientID: process.env.twitterKey || 'CONSUMER_KEY',
+		clientSecret: process.env.twitterSecret || 'CONSUMER_SECRET',
 		callbackURL: 'http://127.0.0.1:3000/auth/twitter/callback'
 	},
 	google: {
