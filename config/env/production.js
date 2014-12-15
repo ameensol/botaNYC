@@ -31,7 +31,7 @@ module.exports = {
 	twitter: {
 		clientID: process.env.twitterKey || 'CONSUMER_KEY',
 		clientSecret: process.env.twitterSecret || 'CONSUMER_SECRET',
-		callbackURL: 'http://127.0.0.1:3000/auth/twitter/callback'
+		callbackURL: 'https://enigmatic-beach-3406.herokuapp.com/auth/twitter/callback'
 	},
 	google: {
 		clientID: process.env.GOOGLE_ID || 'APP_ID',
