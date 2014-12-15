@@ -18,9 +18,6 @@ module.exports = function() {
 
 	// Set the NODE_ENV variable from the config.json contents
 
-	nconf.file({ file: __dirname + '/../config.json' });
-	process.env.NODE_ENV = nconf.get('NODE_ENV');
-
 	glob('./config/env/' + process.env.NODE_ENV + '.js', {
 		sync: true
 	}, function(err, environmentFiles) {
