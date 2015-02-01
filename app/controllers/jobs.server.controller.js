@@ -72,13 +72,30 @@ exports.delete = function(req, res) {
 /**
  * List of Jobs
  */
-exports.list = function(req, res) { Job.find().sort('-created').exec(function(err, jobs) {
+exports.list = function(req, res) {
+	Job.find().sort('created').exec(function(err, jobs) {
 		if (err) {
 			return res.status(400).send({
 				message: errorHandler.getErrorMessage(err)
 			});
 		} else {
 			res.jsonp(jobs);
+		}
+	});
+};
+
+/**
+ * Job List middleware
+ */
+exports.listMW = function (req, res, next) {
+	Job.find().sort('created').exec(function(err, jobs) {
+		if (err) {
+			return next({
+				message: errorHandler.getErrorMessage(err)
+			});
+		} else {
+			req.jobs = jobs
+			next(null)
 		}
 	});
 };

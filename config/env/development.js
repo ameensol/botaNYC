@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-	db: process.env.database,
+	db: process.env.db,
 	app: {
 		title: 'botaNYC development'
 	},

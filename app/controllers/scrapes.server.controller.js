@@ -124,7 +124,6 @@ exports.activate = function (req, res, next) {
 		console.log('scraping after: ' + wait)
 		exports.scheduledScrape = exports.scheduledScrape || {}
 		exports.scheduledScrape.time = new Date().getTime() + wait
-		console.log(exports.scheduledScrape.time)
 		exports.scheduledScrape.id = setTimeout(function () {
 
 			async.waterfall([
@@ -215,7 +214,6 @@ exports.deactivate = function (req, res, next) {
  */
 exports.checkStatus = function (req, res) {
 	if (exports.scheduledScrape) {
-		console.log(exports.scheduledScrape)
 		return res.jsonp({status: 1, time: exports.scheduledScrape.time})
 	} else {
 		return res.jsonp({status: 0})
