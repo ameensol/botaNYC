@@ -23,6 +23,7 @@ http.createServer(function (req, res) {
       job.title+' in '+job.location+' for '+job.agency
     +']]></description>\n'
     xml += '\t\t\t<link><![CDATA['+job.link+']]></link>\n'
+    xml += '\t\t\t<guid>'+job.id+'</guid>\n'
     xml += '\t\t</item>\n'
   })
 
