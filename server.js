@@ -6,9 +6,13 @@ http.createServer(function (req, res) {
 
   var jobs = JSON.parse(fs.readFileSync('jobs.json'))
 
-  var jobs = jobs.sort(function (a, b) {
+  // sort by time of creation (newest first)
+  jobs = jobs.sort(function (a, b) {
     return b.created - a.created
   })
+
+  // take the most recent 20
+  jobs = jobs.splice(0, 20)
 
   var xml = '<rss version="2.0">\n'
   xml += '\t<channel>\n'
@@ -24,6 +28,7 @@ http.createServer(function (req, res) {
     +']]></description>\n'
     xml += '\t\t\t<link><![CDATA['+job.link+']]></link>\n'
     xml += '\t\t\t<guid>'+job.id+'</guid>\n'
+    xml += '\t\t\t<pubDate>'+job.date+'</pubDate>\n'
     xml += '\t\t</item>\n'
   })
 
