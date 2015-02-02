@@ -31,6 +31,6 @@ http.createServer(function (req, res) {
 
   res.writeHead(200, {'Content-Type': 'text/xml'});
   res.end(xml);
-}).listen(3000);
+}).listen(process.env.PORT || 3000);
 
 // module.exports = server
