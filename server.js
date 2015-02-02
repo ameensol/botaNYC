@@ -1,38 +1,36 @@
-'use strict';
-/**
- * Module dependencies.
- */
-var init = require('./config/init')(),
-	config = require('./config/config'),
-	mongoose = require('mongoose'),
-	spawn = require('child_process').spawn;
+var fs = require('fs')
+var http = require('http')
 
-/**
- * Main application entry file.
- * Please note that the order of loading is important.
- */
+console.log('Starting webserver')
+http.createServer(function (req, res) {
 
-console.log(config)
+  var jobs = JSON.parse(fs.readFileSync('jobs.json'))
 
-// Bootstrap db connection
-var db = mongoose.connect(config.db, function(err) {
-	if (err) {
-		console.error('\x1b[31m', 'Could not connect to MongoDB!');
-		console.log(err);
-	}
-});
+  var jobs = jobs.sort(function (a, b) {
+    return b.created - a.created
+  })
 
-// Init the express application
-var app = require('./config/express')(db);
+  var xml = '<rss version="2.0">\n'
+  xml += '\t<channel>\n'
+  xml += '\t<title>NYC Civic Tech Jobs</title>\n'
+  xml += '\t<description>An RSS feed of jobs!</description>\n'
+  xml += '\t<link>http://google.com</link>\n'
 
-// Bootstrap passport config
-require('./config/passport')();
+  jobs.forEach(function (job) {
+    xml += '\t\t<item>\n'
+    xml += '\t\t\t<title>'+job.title+'</title>\n'
+    xml += '\t\t\t<description><![CDATA['+
+      job.title+' in '+job.location+' for '+job.agency
+    +']]></description>\n'
+    xml += '\t\t\t<link><![CDATA['+job.link+']]></link>\n'
+    xml += '\t\t</item>\n'
+  })
 
-// Start the app by listening on <port>
-app.listen(config.port);
+  xml += '\t</channel>'
+  xml += '</rss>'
 
-// Expose app
-exports = module.exports = app;
+  res.writeHead(200, {'Content-Type': 'text/xml'});
+  res.end(xml);
+}).listen(3000);
 
-// Logging initialization
-console.log('MEAN.JS application started on port ' + config.port);
+// module.exports = server
