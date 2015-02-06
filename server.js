@@ -1,6 +1,7 @@
 var fs = require('fs')
 var http = require('http')
 var exec = require('child_process').exec
+var cap = require('title-capitalization')
 
 console.log('Starting webserver')
 http.createServer(function (req, res) {
@@ -42,6 +43,12 @@ http.createServer(function (req, res) {
 
 
     jobs.forEach(function (job) {
+
+      // Proper Capitalization
+      job.title = cap(job.title.toLowerCase())
+      job.location = cap(job.location.toLowerCase())
+      job.agency = cap(job.agency.toLowerCase())
+
       xml += '\t\t<item>\n'
       xml += '\t\t\t<title>'+job.title+'</title>\n'
       xml += '\t\t\t<description><![CDATA['+
@@ -59,5 +66,3 @@ http.createServer(function (req, res) {
   res.writeHead(200, {'Content-Type': 'text/xml'});
   res.end(xml);
 }).listen(process.env.PORT || 3000);
-
-// module.exports = server
