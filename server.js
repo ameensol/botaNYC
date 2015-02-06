@@ -23,11 +23,12 @@ http.createServer(function (req, res) {
     })
   }
 
-  var xml = '<rss version="2.0">\n'
+  var xml = '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n'
   xml += '\t<channel>\n'
   xml += '\t<title>NYC Civic Tech Jobs</title>\n'
   xml += '\t<description>An RSS feed of jobs!</description>\n'
-  xml += '\t<link>http://google.com</link>\n'
+  xml += '\t<link>https://enigmatic-beach-3406.herokuapp.com</link>\n'
+  xml += '\t<atom:link href="https://enigmatic-beach-3406.herokuapp.com" rel="self" type="application/rss+xml" />'
 
   // If there are no jobs, output nothing
   if (jobs && jobs.length > 0) {
@@ -47,8 +48,7 @@ http.createServer(function (req, res) {
         job.title+' in '+job.location+' for '+job.agency
       +']]></description>\n'
       xml += '\t\t\t<link><![CDATA['+job.link+']]></link>\n'
-      xml += '\t\t\t<guid>'+job.id+'</guid>\n'
-      xml += '\t\t\t<pubDate>'+job.date+'</pubDate>\n'
+      xml += '\t\t\t<guid isPermaLink="false">'+job.id+'</guid>\n'
       xml += '\t\t</item>\n'
     })
   }
