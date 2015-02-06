@@ -11,9 +11,11 @@ scraper.start(function(err, jobs) {
   // the database. If it does, do nothing. If it doesn't, save it to the
   // database and send out a tweet.
 
-  var oldJobs = JSON.parse(fs.readFileSync('jobs.json'))
+  var data = JSON.parse(fs.readFileSync('data.json'))
+  var oldJobs = data.jobs
 
   var newJobs = jobs.filter(function (job) {
+    if (!oldJobs || !oldJobs.length) return true
     var matching = oldJobs.filter(function (oldJob) {
       return oldJob.id == job.id
     })
@@ -28,7 +30,7 @@ scraper.start(function(err, jobs) {
     return job
   })
 
-  var allJobs = oldJobs.concat(newJobs)
-  fs.writeFileSync('jobs.json', JSON.stringify(allJobs))
+  data.jobs = oldJobs.concat(newJobs)
+  fs.writeFileSync('data.json', JSON.stringify(data))
   console.log('Saved new Jobs')
 })
